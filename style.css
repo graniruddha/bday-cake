@@ -192,6 +192,7 @@ body {
 }
 
 #zoom {
-  transform: scale(1.2);           /* 120% size—bump up or down as you like */
-  transform-origin: center;    /* anchor the scale from the top-middle */
+  transform: scale(1.2);           
+  transform-origin: center top;
+  margin-top: 2rem; 
 }
