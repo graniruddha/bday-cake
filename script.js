@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const cake = document.querySelector(".cake");
+  const cake               = document.querySelector(".cake");
   const candleCountDisplay = document.getElementById("candleCount");
+  const ageIn              = document.getElementById("age");
+  const goBtn              = document.getElementById("go");
+  const heading            = document.getElementById("heading");
   let candles = [];
   let audioContext;
   let analyser;
@@ -83,4 +86,13 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     console.log("getUserMedia not supported on your browser!");
   }
+
+  goBtn.addEventListener("click", function () {
+    const age = Math.max(1, +ageIn.value || 1);
+    heading.textContent = `🎂 Happy ${age}th Birthday, Kashish! 🎂`;
+
+    candles.forEach(c => c.classList.remove("out"));
+    
+    updateCandleCount();
+  });
 });
