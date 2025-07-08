@@ -1,4 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
+  function formatOrdinal(n) {
+    let suffix = 'th';
+    const rem100 = n % 100;
+    if (rem100 < 11 || rem100 > 13) {
+      const rem10 = n % 10;
+      if (rem10 === 1) suffix = 'st';
+      else if (rem10 === 2) suffix = 'nd';
+      else if (rem10 === 3) suffix = 'rd';
+    }
+    return `${n}<sup>${suffix}</sup>`;
+  }
+  
   const cake               = document.querySelector(".cake");
   const candleCountDisplay = document.getElementById("candleCount");
   const ageIn              = document.getElementById("age");
@@ -89,8 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   goBtn.addEventListener("click", function () {
     const age = Math.max(1, +ageIn.value || 1);
-    heading.textContent = `🎂 Happy ${age}th Birthday, Kashish! 🎂`;
-
+    heading.innerHTML = `🎂 Happy ${formatOrdinal(age)} Birthday, Kashish! 🎂`;
     candles.forEach(c => c.classList.remove("out"));
     
     updateCandleCount();
