@@ -191,8 +191,8 @@ body {
   text-align: center;
 }
 
-#zoom {
-  transform: scale(1.2);           
+#cake {
+  transform: scale(1.2);
   transform-origin: center top;
-  margin-top: 2rem; 
 }
+
