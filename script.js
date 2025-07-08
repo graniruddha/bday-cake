@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // Helper to format 1st, 2nd, 3rd, 4th…
   function formatOrdinal(n) {
     let suffix = 'th';
     const rem100 = n % 100;
@@ -10,29 +11,33 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     return `${n}<sup>${suffix}</sup>`;
   }
-  
+
+  // Grab elements
   const cake               = document.querySelector(".cake");
+  const birthdayAudio      = document.getElementById("birthday-audio");
   const candleCountDisplay = document.getElementById("candleCount");
   const ageIn              = document.getElementById("age");
   const goBtn              = document.getElementById("go");
+  const micBtn             = document.getElementById("mic");
   const heading            = document.getElementById("heading");
-  let candles = [];
+
+  let candles   = [];
   let audioContext;
   let analyser;
   let microphone;
 
+  // Update the on-screen count display
   function updateCandleCount() {
-    const activeCandles = candles.filter(
-      (candle) => !candle.classList.contains("out")
-    ).length;
+    const activeCandles = candles.filter(c => !c.classList.contains("out")).length;
     candleCountDisplay.textContent = activeCandles;
   }
 
+  // Create a new candle at (left, top)
   function addCandle(left, top) {
     const candle = document.createElement("div");
     candle.className = "candle";
     candle.style.left = left + "px";
-    candle.style.top = top + "px";
+    candle.style.top  = top + "px";
 
     const flame = document.createElement("div");
     flame.className = "flame";
@@ -43,51 +48,58 @@ document.addEventListener("DOMContentLoaded", function () {
     updateCandleCount();
   }
 
+  // Click-to-add: play audio, then add a candle
   cake.addEventListener("click", function (event) {
+    // Play the Happy Birthday tune from the start
+    if (birthdayAudio) {
+      birthdayAudio.currentTime = 0;
+      birthdayAudio.play();
+    }
+
     const rect = cake.getBoundingClientRect();
     const left = event.clientX - rect.left;
-    const top = event.clientY - rect.top;
+    const top  = event.clientY - rect.top;
     addCandle(left, top);
   });
 
+  // Detect blowing into the mic
   function isBlowing() {
     const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
+    const dataArray    = new Uint8Array(bufferLength);
     analyser.getByteFrequencyData(dataArray);
 
     let sum = 0;
     for (let i = 0; i < bufferLength; i++) {
       sum += dataArray[i];
     }
-    let average = sum / bufferLength;
-
-    return average > 40; //
+    const average = sum / bufferLength;
+    return average > 40;
   }
 
+  // Randomly extinguish some candles when blowing
   function blowOutCandles() {
     let blownOut = 0;
-
     if (isBlowing()) {
-      candles.forEach((candle) => {
+      candles.forEach(candle => {
         if (!candle.classList.contains("out") && Math.random() > 0.5) {
           candle.classList.add("out");
           blownOut++;
         }
       });
     }
-
     if (blownOut > 0) {
       updateCandleCount();
     }
   }
 
-  if (navigator.mediaDevices.getUserMedia) {
+  // Initialize microphone stream for blow detection
+  if (navigator.mediaDevices?.getUserMedia) {
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then(function (stream) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        microphone = audioContext.createMediaStreamSource(stream);
+        analyser     = audioContext.createAnalyser();
+        microphone   = audioContext.createMediaStreamSource(stream);
         microphone.connect(analyser);
         analyser.fftSize = 256;
         setInterval(blowOutCandles, 200);
@@ -99,11 +111,37 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("getUserMedia not supported on your browser!");
   }
 
+  // Light / relight all candles and update heading
   goBtn.addEventListener("click", function () {
     const age = Math.max(1, +ageIn.value || 1);
     heading.innerHTML = `🎂 Happy ${formatOrdinal(age)} Birthday, Kashish! 🎂`;
     candles.forEach(c => c.classList.remove("out"));
-    
     updateCandleCount();
+  });
+
+  // Mic button toggles blow listening on/off
+  micBtn.addEventListener("click", function () {
+    if (microphone) {
+      // stop listening
+      microphone.disconnect();
+      microphone = null;
+      micBtn.textContent = "🎤 Blow With Mic";
+    } else if (navigator.mediaDevices?.getUserMedia) {
+      // restart listening
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then(stream => {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          analyser     = audioContext.createAnalyser();
+          microphone   = audioContext.createMediaStreamSource(stream);
+          microphone.connect(analyser);
+          analyser.fftSize = 256;
+          setInterval(blowOutCandles, 200);
+          micBtn.textContent = "🛑 Stop Mic";
+        })
+        .catch(err => {
+          console.log("Unable to access microphone: " + err);
+        });
+    }
   });
 });
