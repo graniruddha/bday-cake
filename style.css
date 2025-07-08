@@ -26,17 +26,17 @@ body {
 
 .cake {
   position: absolute;
-  width: 450px;
-  height: 260px;
+  width: 250px;
+  height: 200px;
   top: 50%;
   left: 50%;
-  margin-top: -130px;
-  margin-left: -225px;
+  margin-top: -70px;
+  margin-left: -125px;
 }
 
 .plate {
-  width: 490px;
-  height: 200px;
+  width: 270px;
+  height: 110px;
   position: absolute;
   bottom: -10px;
   left: -10px;
@@ -52,8 +52,8 @@ body {
 .layer {
   position: absolute;
   display: block;
-  width: 450px;
-  height: 180px;
+  width: 250px;
+  height: 100px;
   border-radius: 50%;
   background-color: #553c13;
   box-shadow: 0 2px 0px #6a4b18, 0 4px 0px #33240b, 0 6px 0px #32230b, 0 8px 0px #31230b, 0 10px 0px #30220b, 0 12px 0px #2f220b, 0 14px 0px #2f210a, 0 16px 0px #2e200a, 0 18px 0px #2d200a, 0 20px 0px #2c1f0a, 0 22px 0px #2b1f0a, 0 24px 0px #2a1e09, 0 26px 0px #2a1d09, 0 28px 0px #291d09, 0 30px 0px #281c09;
@@ -64,19 +64,19 @@ body {
 }
 
 .layer-middle {
-  top: 60px;
+  top: 33px;
 }
 
 .layer-bottom {
-  top: 120px;
+  top: 66px;
 }
 
 .icing {
-  top: 5px;
+  top: 2px;
   left: 5px;
   background-color: #f0e4d0;
-  width: 430px;
-  height: 160px;
+  width: 240px;
+  height: 90px;
   border-radius: 50%;
 }
 .icing:before {
