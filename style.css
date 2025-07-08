@@ -190,3 +190,8 @@ body {
 #controls {
   text-align: center;
 }
+
+#zoom {
+  transform: scale(1.2);           /* 120% size—bump up or down as you like */
+  transform-origin: top center;    /* anchor the scale from the top-middle */
+}
