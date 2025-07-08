@@ -191,3 +191,13 @@ body {
   text-align: center;
 }
 
+#stage-wrapper {
+  display: flex;             /* center children horizontally */
+  justify-content: center;
+  margin-top: 2rem;          /* push it down a bit under the controls */
+}
+
+#stage {
+  transform: scale(1.2);     /* zoom-in 120% */
+  transform-origin: top center;
+}
