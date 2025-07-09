@@ -1,146 +1,136 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Helper for superscript suffixes
+  // Helper to format 1st, 2nd, 3rd, 4th…
   function formatOrdinal(n) {
     let suffix = 'th';
     const rem100 = n % 100;
     if (rem100 < 11 || rem100 > 13) {
       const rem10 = n % 10;
-      if      (rem10 === 1) suffix = 'st';
+      if (rem10 === 1) suffix = 'st';
       else if (rem10 === 2) suffix = 'nd';
       else if (rem10 === 3) suffix = 'rd';
     }
     return `${n}<sup>${suffix}</sup>`;
   }
 
-  // Grab DOM nodes
-  const cake           = document.getElementById('cake');
-  const stage          = document.getElementById('stage');
-  const heading        = document.getElementById('heading');
-  const ageIn          = document.getElementById('age');
-  const goBtn          = document.getElementById('go');
-  const micBtn         = document.getElementById('mic');
-  const birthdayAudio  = document.getElementById('birthday-audio');
-  let candles         = [];
+  // Grab elements
+  const cake               = document.querySelector(".cake");
+  const birthdayAudio      = document.getElementById("birthday-audio");
+  const candleCountDisplay = document.getElementById("candleCount");
+  const ageIn              = document.getElementById("age");
+  const goBtn              = document.getElementById("go");
+  const micBtn             = document.getElementById("mic");
+  const heading            = document.getElementById("heading");
 
-  // AudioContext for microphone
-  let audioContext, analyser, microphoneStream;
+  let candles   = [];
+  let audioContext;
+  let analyser;
+  let microphone;
 
-  // Update the candle count display if you have one
   function updateCandleCount() {
-    const countEl = document.getElementById('candleCount');
-    if (countEl) {
-      const active = candles.filter(c => !c.classList.contains('out')).length;
-      countEl.textContent = active;
-    }
+    const activeCandles = candles.filter(c => !c.classList.contains("out")).length;
+    candleCountDisplay.textContent = activeCandles;
   }
 
-  // Create & place a candle at (l,t)
-  function addCandle(l, t) {
-    const c = document.createElement('div');
-    c.className = 'candle';
-    c.style.left = l + 'px';
-    c.style.top  = t + 'px';
+  function addCandle(left, top) {
+    const candle = document.createElement("div");
+    candle.className = "candle";
+    candle.style.left = left + "px";
+    candle.style.top  = top + "px";
 
-    const f = document.createElement('div');
-    f.className = 'flame';
-    c.appendChild(f);
+    const flame = document.createElement("div");
+    flame.className = "flame";
+    candle.appendChild(flame);
 
-    c.addEventListener('click', () => {
-      c.classList.add('out');
-      updateCandleCount();
-    });
-
-    cake.appendChild(c);
-    candles.push(c);
+    cake.appendChild(candle);
+    candles.push(candle);
     updateCandleCount();
   }
 
-  // Handle click-on-cake to add a candle
-  cake.addEventListener('click', function (e) {
+  // Click-to-add (no more audio here)
+  cake.addEventListener("click", function (event) {
     const rect = cake.getBoundingClientRect();
-    const l = e.clientX - rect.left;
-    const t = e.clientY - rect.top;
-    addCandle(l, t);
+    const left = event.clientX - rect.left;
+    const top  = event.clientY - rect.top;
+    addCandle(left, top);
   });
 
-  // Check audio levels for blowing
   function isBlowing() {
     const bufferLength = analyser.frequencyBinCount;
-    const data = new Uint8Array(bufferLength);
-    analyser.getByteTimeDomainData(data);
+    const dataArray    = new Uint8Array(bufferLength);
+    analyser.getByteFrequencyData(dataArray);
 
     let sum = 0;
-    for (let v of data) sum += ((v - 128) / 128) ** 2;
-    const rms = Math.sqrt(sum / bufferLength);
-    return rms > 0.25;
+    for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
+    const average = sum / bufferLength;
+    return average > 40;
   }
 
-  // Called repeatedly to check mic and blow out candles
-  function monitorBlow() {
-    if (!microphoneStream) return;
+  // Extinguish randomly on blow; play audio when *all* are out
+  function blowOutCandles() {
+    let blownOut = 0;
     if (isBlowing()) {
-      // Play the tune immediately on first detection
-      if (birthdayAudio) {
+      candles.forEach(candle => {
+        if (!candle.classList.contains("out") && Math.random() > 0.5) {
+          candle.classList.add("out");
+          blownOut++;
+        }
+      });
+    }
+    if (blownOut > 0) {
+      updateCandleCount();
+
+      // When every candle is out, play the tune
+      if (candles.length > 0 && candles.every(c => c.classList.contains("out"))) {
         birthdayAudio.currentTime = 0;
         birthdayAudio.play();
       }
-      // Extinguish each remaining candle
-      candles.forEach(c => {
-        if (!c.classList.contains('out') && Math.random() > 0.5) {
-          c.classList.add('out');
-        }
-      });
-      updateCandleCount();
     }
-    requestAnimationFrame(monitorBlow);
   }
 
-  // Start microphone listening
-  function startMic() {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => {
+  // Mic setup for blow detection
+  if (navigator.mediaDevices?.getUserMedia) {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then(function (stream) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         analyser     = audioContext.createAnalyser();
-        microphoneStream = audioContext.createMediaStreamSource(stream);
-        microphoneStream.connect(analyser);
-        analyser.fftSize = 2048;
-        monitorBlow();  // kick off the loop
-        micBtn.textContent = '🛑 Stop Mic';
+        microphone   = audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyser);
+        analyser.fftSize = 256;
+        setInterval(blowOutCandles, 200);
       })
-      .catch(err => console.error('Mic error:', err));
+      .catch(err => console.log("Unable to access microphone: " + err));
+  } else {
+    console.log("getUserMedia not supported on your browser!");
   }
 
-  // Stop microphone listening
-  function stopMic() {
-    if (microphoneStream) {
-      microphoneStream.disconnect();
-      microphoneStream = null;
-      micBtn.textContent = '🎤 Blow With Mic';
-    }
-  }
-
-  // Light / relight all candles
-  goBtn.addEventListener('click', () => {
-    const age = Math.max(1, Number(ageIn.value) || 1);
+  // Light/relight all
+  goBtn.addEventListener("click", function () {
+    const age = Math.max(1, +ageIn.value || 1);
     heading.innerHTML = `🎂 Happy ${formatOrdinal(age)} Birthday, Kashish! 🎂`;
-    candles.forEach(c => c.classList.remove('out'));
+    candles.forEach(c => c.classList.remove("out"));
     updateCandleCount();
   });
 
-  // Toggle mic on/off
-  micBtn.addEventListener('click', () => {
-    microphoneStream ? stopMic() : startMic();
-  });
-
-  // (Optional) Allow click-off-cake to blow all
-  stage.addEventListener('click', e => {
-    if (e.target === stage) {
-      candles.forEach(c => c.classList.add('out'));
-      updateCandleCount();
-      if (birthdayAudio) {
-        birthdayAudio.currentTime = 0;
-        birthdayAudio.play();
-      }
+  // Mic toggle
+  micBtn.addEventListener("click", function () {
+    if (microphone) {
+      microphone.disconnect();
+      microphone = null;
+      micBtn.textContent = "🎤 Blow With Mic";
+    } else if (navigator.mediaDevices?.getUserMedia) {
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then(stream => {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          analyser     = audioContext.createAnalyser();
+          microphone   = audioContext.createMediaStreamSource(stream);
+          microphone.connect(analyser);
+          analyser.fftSize = 256;
+          setInterval(blowOutCandles, 200);
+          micBtn.textContent = "🛑 Stop Mic";
+        })
+        .catch(err => console.log("Unable to access microphone: " + err));
     }
   });
 });
