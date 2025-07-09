@@ -18,7 +18,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const ageIn              = document.getElementById("age");
   const goBtn              = document.getElementById("go");
   const micBtn             = document.getElementById("mic");
+  const cutBtn             = document.getElementById('cut');
   const heading            = document.getElementById("heading");
+  
+
 
   let candles   = [];
   let audioContext;
@@ -77,7 +80,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (blownOut > 0) {
       updateCandleCount();
-      // <-- music play removed -->
+
+      if (candles.length > 0 && candles.every(c => c.classList.contains("out"))) {
+        confetti({
+          particleCount: 100,
+          spread: 60,
+          origin: { y: 0.3 }
+        });
+      }
     }
   }
 
@@ -126,5 +136,14 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(err => console.log("Unable to access microphone: " + err));
     }
+  });
+});
+
+  cutBtn.addEventListener("click", () => {
+    if (document.querySelector('.cake-slice')) return;
+    const slice = document.createElement('div');
+    slice.className = 'cake-slice';
+    cake.appendChild(slice);
+    requestAnimationFrame(() => slice.classList.add('cut'));
   });
 });
