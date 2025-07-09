@@ -138,4 +138,20 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(err => console.log("Unable to access microphone: " + err));
     }
   });
+
+  document.addEventListener("click", (e) => {
+    // ignore clicks on the cake (adds candles) or on your controls
+    if (e.target.closest(".cake") || e.target.closest("#controls")) {
+      return;
+    }
+    // normalize to 0–1 for confetti origin
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+
+    confetti({
+      particleCount: 80,
+      spread:        50,
+      origin:       { x, y }
+    });
+  });
 });
