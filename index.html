@@ -13,26 +13,37 @@
 </head>
 <body>
   <audio id="birthday-audio" src="happy-birthday.mp3" preload="auto"></audio>
-    <h1 id="heading">🎂 Happy Birthday, Kashish! 🎂</h1>
-    <div id="controls">
-      <input id="age" type="number" min="1" max="120" placeholder="Age">
-      <button id="go">Light Candles</button>
-    </div>
+  <h1 id="heading">🎂 Happy Birthday, Kashish! 🎂</h1>
+  <div id="controls">
+    <input id="age" type="number" min="1" max="120" placeholder="Age" />
+    <button id="go">Light Candles</button>
+  </div>
 
-    <div id="stage">
-      <div id="cake" class="cake">
-        <div class="plate"></div>
-        <div class="layer layer-bottom"></div>
-        <div class="layer layer-middle"></div>
-        <div class="layer layer-top"></div>
-        <div class="icing"></div>
-        <div class="drip drip1"></div>
-        <div class="drip drip2"></div>
-        <div class="drip drip3"></div>
-      </div>
-    </div> 
-  
+  <div id="stage">
+    <div id="cake" class="cake">
+      <div class="plate"></div>
+      <div class="layer layer-bottom"></div>
+      <div class="layer layer-middle"></div>
+      <div class="layer layer-top"></div>
+      <div class="icing"></div>
+      <div class="drip drip1"></div>
+      <div class="drip drip2"></div>
+      <div class="drip drip3"></div>
+    </div>
+  </div>
+
+  <!-- 1) Provide a fake CommonJS module object -->
+  <script>
+    window.module = { exports: null };
+  </script>
+  <!-- 2) Load the raw source file you downloaded -->
   <script src="./confetti.js"></script>
+  <!-- 3) Copy its export onto window.confetti -->
+  <script>
+    window.confetti = module.exports;
+    delete window.module;
+  </script>
+  <!-- 4) Then your existing logic -->
   <script src="script.js"></script>
 </body>
 </html>
