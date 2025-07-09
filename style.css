@@ -190,3 +190,20 @@ body {
 #controls {
   text-align: center;
 }
+
+.cake-slice {
+  position: absolute;
+  top: 0; left: 50%;
+  width: 50%;  height: 100%;
+  /* clip to a wedge */
+  clip-path: polygon(50% 50%, 100% 0%, 100% 100%);
+  background: inherit;     /* picks up icing + layer colors behind it */
+  transform-origin: 50% 50%;
+  transition: transform 1s ease-out;
+  z-index: 20;             /* above the cake */
+}
+
+/* once “cut”, slide it away */
+.cake-slice.cut {
+  transform: translateX(150px) rotate(20deg);
+}
