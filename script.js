@@ -78,10 +78,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (blownOut > 0) {
       updateCandleCount();
 
-      if (candles.length > 0 && candles.every(c => c.classList.contains("out"))) {
-        confetti({ particleCount: 100, spread: 60, origin: { y: 0.3 } });
+      if (
+        candles.length > 0 && 
+        candles.every(c => c.classList.contains("out"))
+      ) {
+        confetti({
+          particleCount: 100, 
+          spread: 60, 
+          origin: { y: 0.6 } 
+        });
       }
-      // <-- music play removed -->
     }
   }
 
