@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Grab elements
   const cake               = document.querySelector(".cake");
-  const birthdayAudio      = document.getElementById("birthday-audio");
   const candleCountDisplay = document.getElementById("candleCount");
   const ageIn              = document.getElementById("age");
   const goBtn              = document.getElementById("go");
@@ -46,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateCandleCount();
   }
 
-  // Click-to-add (no more audio here)
+  // Click-to-add
   cake.addEventListener("click", function (event) {
     const rect = cake.getBoundingClientRect();
     const left = event.clientX - rect.left;
@@ -65,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return average > 40;
   }
 
-  // Extinguish randomly on blow; play audio when *all* are out
+  // Extinguish randomly on blow
   function blowOutCandles() {
     let blownOut = 0;
     if (isBlowing()) {
@@ -78,12 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (blownOut > 0) {
       updateCandleCount();
-
-      // When every candle is out, play the tune
-      if (candles.length > 0 && candles.every(c => c.classList.contains("out"))) {
-        birthdayAudio.currentTime = 0;
-        birthdayAudio.play();
-      }
+      // <-- music play removed -->
     }
   }
 
