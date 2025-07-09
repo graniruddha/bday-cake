@@ -108,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
     heading.innerHTML = `🎂 Happy ${formatOrdinal(age)} Birthday, Kashish! 🎂`;
     candles.forEach(c => c.classList.remove("out"));
     updateCandleCount();
+    confetti({ particleCount: 100, spread: 60, origin: { y: 0.3 } });
   });
 
   // Mic toggle
